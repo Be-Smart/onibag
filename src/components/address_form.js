@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { reduxForm, Field } from 'redux-form';
 import { connect } from 'react-redux';
 import Geosuggest from 'react-geosuggest';
+import * as actions from '../actions';
 
 class Form extends Component {
   constructor() {
@@ -20,6 +20,7 @@ class Form extends Component {
 
     if (distance <= 20) {
       console.log(distance, 'Success');
+      this.props.pushData(pickup.label, dropoff.label, distance);
     } else {
       console.log(distance, 'Fail');
     }
@@ -65,4 +66,4 @@ class Form extends Component {
   }
 }
 
-export default connect(null)(Form);
+export default connect(null, actions)(Form);
