@@ -25,9 +25,9 @@ class Addresses extends Component {
 
   render() {
     return (
-      <div>
-        <h2>Saved items</h2>
-        <table>
+      <div className='table-wrap'>
+        <h2 className='table-header'>Saved items</h2>
+        <table className='table table-striped'>
           <thead>
             <tr>
               <th>Start point</th>
