@@ -3,14 +3,27 @@ import { connect } from 'react-redux';
 import Geosuggest from 'react-geosuggest';
 import * as actions from '../actions';
 
+import './styles_form.sass';
+
 class Form extends Component {
   constructor() {
     super();
-    this.state = { pickup: {}, dropoff: {} };
+    this.state = { pickup: {}, dropoff: {}, err: '', success: '' };
+  }
+
+  validate() {
+    const {pickup, dropoff} = this.state;
+
+    if (!pickup.label || !dropoff.label) {
+      return true;
+    }
+
+    return false;
   }
 
   onFormSubmit(e) {
     e.preventDefault();
+
     const {pickup, dropoff} = this.state;
     const { lat: latPickup, lng: lngPickup } = pickup.location;
     const { lat: latDropoff, lng: lngDropoff } = dropoff.location;
@@ -21,9 +34,23 @@ class Form extends Component {
     if (distance <= 20) {
       console.log(distance, 'Success');
       this.props.pushData(pickup.label, dropoff.label, distance);
+      this.setState({
+        pickup: {},
+        dropoff: {},
+        success: 'New record successfully added'
+      });
     } else {
+      this.setState({
+        pickup: {},
+        dropoff: {},
+        err: 'Too far apart! Distance must be less 20 miles'
+      });
+
       console.log(distance, 'Fail');
     }
+
+    this._pickup.clear();
+    this._dropoff.clear();
   }
 
   calcCrow([lat1, lon1, lat2, lon2]) {
@@ -46,20 +73,33 @@ class Form extends Component {
 
   render() {
     const { handleSubmit } = this.props;
+    const { err, success } = this.state;
 
     return (
-      <div>
-        <h1>Addresses</h1>
+      <div className='form-wrap'>
+        <h2>Addresses</h2>
+        {err ? <p className='alert alert-danger'>{err}</p> : null}
+        {success ? <p className='alert alert-success'>{success}</p> : null}
         <form onSubmit={ this.onFormSubmit.bind(this) }>
           <Geosuggest
+            ref={el => this._pickup = el}
+            inputClassName='form-control'
             placeholder='Pick Up'
+            onFocus={() => this.setState({ ...this.state, err: '', success: '' })}
             onSuggestSelect={ value => this.setState({ pickup: value }) }
           />
           <Geosuggest
+            ref={el => this._dropoff = el}
+            inputClassName='form-control'
             placeholder='Drop Off'
+            onFocus={() => this.setState({ ...this.state, err: '', success: '' })}
             onSuggestSelect={ value => this.setState({ dropoff: value }) }
           />
-          <button action='submit'>Submit</button>
+          <button
+            action='submit'
+            className='btn btn-primary'
+            disabled={this.validate()}
+          > Submit </button>
         </form>
       </div>
     );
